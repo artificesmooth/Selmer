@@ -28,15 +28,15 @@
 ;; of a string, we'll use the last-modified timestamp to cache the
 ;; template. Works fine for active local development and production.
 
-(defonce templates (atom {}))
+#_(defonce templates (atom {}))
 
 ;; Can be overridden by closure/argument 'cache
-(defonce cache? (atom true))
+#_(defonce cache? (atom true))
 
-(defn cache-on! []
+#_(defn cache-on! []
   (reset! cache? true))
 
-(defn cache-off! []
+#_(defn cache-off! []
   (reset! cache? false))
 
 (defn- append-slash
@@ -127,14 +127,14 @@
   renders post-parse vector with passed context-map regardless. Double-checks
   last-modified on files. Uses classpath for filename-or-url path "
   [filename-or-url context-map & [{:keys [cache custom-resource-path url-stream-handler]
-                                   :or   {cache                @cache?
+                                   :or   {#_#_cache                @cache?
                                           custom-resource-path *custom-resource-path*
                                           url-stream-handler   *url-stream-handler*}
                                    :as   opts}]]
   (binding [*custom-resource-path* (make-resource-path custom-resource-path)
             *url-stream-handler* url-stream-handler]
     (if-let [resource (resource-path filename-or-url)]
-      (let [{:keys [template last-modified]} (get @templates resource)
+      (let [{:keys [template last-modified]} (.get cache resource) #_(get @templates resource)
             ;;for some resources, such as ones inside a jar, it's
             ;;not possible to check the last modified timestamp
             last-modified-time (if (or (nil? last-modified) (pos? last-modified))
@@ -143,7 +143,9 @@
         (if (and cache last-modified (= last-modified last-modified-time))
           (render-template template context-map)
           (let [template (parse parse-file filename-or-url opts)]
-            (swap! templates assoc resource {:template      template
+            (.put cache resource {:template      template
+                                  :last-modified last-modified-time})
+            #_(swap! templates assoc resource {:template      template
                                              :last-modified last-modified-time})
             (render-template template context-map))))
       (validation-error
