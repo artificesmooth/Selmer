@@ -215,7 +215,8 @@
         :else (*resource-fn* template)))))
 
 (defn resource-last-modified [^java.net.URL resource]
-  (let [path (.getPath resource)]
+  (.getLastModified (.openConnection resource))
+  #_(let [path (.getPath resource)]
     (try
       (.lastModified (io/file path))
       (catch NullPointerException _ -1))))
