@@ -134,7 +134,7 @@
   (binding [*custom-resource-path* (make-resource-path custom-resource-path)
             *url-stream-handler* url-stream-handler]
     (if-let [resource (resource-path filename-or-url)]
-      (let [{:keys [template last-modified]} (.get cache resource) #_(get @templates resource)
+      (let [{:keys [template last-modified]} (.getIfPresent cache resource) #_(get @templates resource)
             ;;for some resources, such as ones inside a jar, it's
             ;;not possible to check the last modified timestamp
             last-modified-time (if (or (nil? last-modified) (pos? last-modified))
